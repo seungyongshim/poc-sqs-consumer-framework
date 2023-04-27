@@ -13,9 +13,17 @@ public class WeatherForecastController : ControllerBase
 
         return Ok();
     }
-
-    [SubscribeSqs<HelloDto>()]
-    public Task DoWork(HelloDto dto) => default;
 }
+
+public class HelloDtoHandler : ISubscribeSqs<HelloDto>
+{
+    public Task Handle(HelloDto dto, CancellationToken ct) 
+    {
+            Console.WriteLine($"SqsUrl: {dto}");
+        return Task.CompletedTask;
+    }
+}
+
+
 
 
