@@ -17,18 +17,20 @@ public class SqsHostedService : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         var tasks = from x in Option.SqsUrls
-                    select Task.Factory.StartNew(() =>
+                    from y in Enumerable.Range(0, x.Parallelism)
+                    select Task.Factory.StartNew(async () =>
                     {
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            var msg = new HelloDto() { Name = "Hello" };
+                            await using var scope = ServiceProvider.CreateAsyncScope();
+                            var msg = new HelloDto() { Name = $"{y}" };
                             var t = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
 
-                            var c = ServiceProvider.GetRequiredService(t);
+                            var c = scope.ServiceProvider.GetRequiredService(t);
                             var m = t.GetMethod("Handle");
 
                             m.Invoke(c, new object[] { msg, cancellationToken });
-                            Thread.Sleep(1000);
+                            await Task.Delay(1000).ConfigureAwait(false);
                         }
                     }, TaskCreationOptions.LongRunning);
 

@@ -11,7 +11,7 @@ public class SubscribeSqs<T> : ISubscribeSqs<T>
 {
     public Task Handle(T dto, CancellationToken ct) => dto switch
     {
-        HelloDto => Task.Run(() => Console.WriteLine($"Handle: {dto}")),
+        HelloDto => Task.Run(() => Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}]Handle: {dto}")),
         _ => Task.CompletedTask
     };
 }

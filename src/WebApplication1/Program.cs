@@ -1,18 +1,22 @@
 using WebApplication1;
 using WebApplication1.Controllers;
+using WebApplication1.Dto;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<ISubscribeSqs<HelloDto>, HelloDtoHandler>();
 builder.Host.UseSqs(x =>
 {
-    x.SqsUrls.Add("http://localhost:4576/queue/test");
+    x.SqsUrls.Add(new SqsUrlsContext
+    {
+        Url = "http://localhost:4576/queue/test",
+        Parallelism = 10
+    });
 });
+
 
 var app = builder.Build();
 
