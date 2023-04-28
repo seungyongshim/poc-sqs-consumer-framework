@@ -48,7 +48,7 @@ public static partial class UseSqsExtension
 
         _ = host.ConfigureServices((ctx, services) =>
         {
-            services.AddAWSService<IAmazonSQS>(ServiceLifetime.Singleton);
+            _ = services.AddAWSService<IAmazonSQS>();
             _ = services.AddTransient(typeof(ISubscribeSqs<>), typeof(SubscribeSqs<>));
             _ = services.AddHostedService(sp => new SqsHostedService(sp, sp.GetRequiredService<SqsOptions>().Value[appServiceType]));
         });

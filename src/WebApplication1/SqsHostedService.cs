@@ -1,8 +1,11 @@
+using Amazon.SQS;
 using WebApplication1.Controllers;
 using WebApplication1.Dto;
 using WebApplication1.Extensions;
 
 namespace WebApplication1;
+
+//https://github.com/awslabs/aws-dotnet-messaging/blob/main/src/AWS.Messaging/SQS/SQSMessagePoller.cs#L18
 
 public class SqsHostedService : IHostedService
 {
@@ -35,11 +38,19 @@ public class SqsHostedService : IHostedService
                             try
                             {
                                 await using var scope = ServiceProvider.CreateAsyncScope();
+                                var sqs = scope.ServiceProvider.GetRequiredService<IAmazonSQS>();
+
+                                var res = await sqs.ReceiveMessageAsync(new Amazon.SQS.Model.ReceiveMessageRequest
+                                {
+                                    QueueUrl = x.Url,
+                                    MaxNumberOfMessages = 10,
+                                }, cancellationToken);
+
                                 var msg = new HelloDto() { Name = $"{y}" };
                                 var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
 
                                 var c = scope.ServiceProvider.GetRequiredService(type);
-                                var m = type.GetMethod("Handle");
+                                var m = type.GetMethod("HandleAsync");
 
                                 var t1 = m?.Invoke(c, new object[] { msg, cancellationToken }) switch
                                 {
@@ -49,8 +60,9 @@ public class SqsHostedService : IHostedService
 
                                 await t1;
                             }
-                            catch
+                            catch (Exception ex)
                             {
+                                Console.WriteLine(ex);
                             }
                         }
                     }, default, TaskCreationOptions.LongRunning, single);

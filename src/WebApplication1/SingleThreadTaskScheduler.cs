@@ -8,17 +8,8 @@ public sealed class SingleThreadTaskScheduler : TaskScheduler, IDisposable
     public CancellationTokenSource CancellationTokenSource { get; } = new();
     public BlockingCollection<Task> Tasks { get; } = new();
 
-    public SingleThreadTaskScheduler(ApartmentState apartmentState = ApartmentState.STA) : this(null, apartmentState)
+    public SingleThreadTaskScheduler(ApartmentState apartmentState = ApartmentState.STA)
     {
-    }
-
-    public SingleThreadTaskScheduler(Action initAction, ApartmentState apartmentState = ApartmentState.STA)
-    {
-        if (apartmentState is not ApartmentState.MTA and not ApartmentState.STA)
-        {
-            throw new ArgumentException("apartementState");
-        }
-
         Thread = new Thread(ThreadStart)
         {
             IsBackground = true
