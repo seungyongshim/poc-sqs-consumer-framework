@@ -1,4 +1,6 @@
 using Amazon.SQS;
+using Amazon.SQS.Model;
+using Microsoft.Extensions.Configuration;
 using WebApplication1.Controllers;
 using WebApplication1.Dto;
 using WebApplication1.Extensions;
@@ -20,6 +22,13 @@ public class SqsHostedService : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        var sqs = ServiceProvider.GetRequiredService<IAmazonSQS>();
+
+        //var sqs = new AmazonSQSClient(new AmazonSQSConfig
+        //{
+            
+        //    MaxConnectionsPerServer = 1
+        //});
 
         var single = new SingleThreadTaskScheduler();
 
@@ -38,12 +47,16 @@ public class SqsHostedService : IHostedService
                             try
                             {
                                 await using var scope = ServiceProvider.CreateAsyncScope();
-                                var sqs = scope.ServiceProvider.GetRequiredService<IAmazonSQS>();
+                                
 
-                                var res = await sqs.ReceiveMessageAsync(new Amazon.SQS.Model.ReceiveMessageRequest
+                                var res = await sqs.ReceiveMessageAsync(new ReceiveMessageRequest
                                 {
                                     QueueUrl = x.Url,
                                     MaxNumberOfMessages = 10,
+                                    //VisibilityTimeout = _configuration.VisibilityTimeout,
+                                    //WaitTimeSeconds = _configuration.WaitTimeSeconds,
+                                    AttributeNames = new List<string> { "All" },
+                                    MessageAttributeNames = new List<string> { "All" }
                                 }, cancellationToken);
 
                                 var msg = new HelloDto() { Name = $"{y}" };
