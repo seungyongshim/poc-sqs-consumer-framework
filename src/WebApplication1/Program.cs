@@ -1,9 +1,8 @@
-using WebApplication1;
-using WebApplication1.Controllers;
-using WebApplication1.Dto;
 using WebApplication1.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -17,8 +16,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    _ = app.UseSwagger();
+    _ = app.UseSwaggerUI();
 }
 
 app.UseAuthorization();

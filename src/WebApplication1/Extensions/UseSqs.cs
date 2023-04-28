@@ -1,6 +1,5 @@
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SQS;
-using Microsoft.Extensions.Options;
 using WebApplication1.Controllers;
 
 namespace WebApplication1.Extensions;
@@ -17,9 +16,12 @@ public static partial class UseSqsExtension
         _ = services.AddDefaultAWSOptions(config.GetAWSOptions());
     }
 
-    public static IHostBuilder UseEffect<T>(this IHostBuilder host,
-                                            AppServiceType appServiceType,
-                                            Func<T, IServiceProvider, T>? func = null) where T : class
+    public static IHostBuilder UseEffect<T>
+    (
+        this IHostBuilder host,
+        AppServiceType appServiceType,
+        Func<T, IServiceProvider, T>? func = null
+    ) where T : class
     {
         func ??= (o, sp) => o;
 
