@@ -15,15 +15,5 @@ public class WeatherForecastController : ControllerBase
     }
 }
 
-public class HelloDtoHandler : ISubscribeSqs<HelloDto>
-{
-    public Task Handle(HelloDto dto, CancellationToken ct) 
-    {
-        Console.WriteLine($"SqsUrl: {dto}");
-        return Task.CompletedTask;
-    }
-}
-
-
 
 
