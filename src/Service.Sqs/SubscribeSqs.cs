@@ -1,9 +1,6 @@
-namespace WebApplication1.Controllers;
+namespace Service.Sqs;
 
-public class SubscribeSqs<T> : ISubscribeSqs<T>
+public class SubscribeSqs<T> : ISubscribeSqs<T> where T : notnull
 {
-    public Task HandleAsync(T dto, CancellationToken ct)
-    {
-        return Task.CompletedTask;
-    }
+    public Task HandleAsync(T dto, CancellationToken ct) => throw new UnhandleDtoException(dto);
 }

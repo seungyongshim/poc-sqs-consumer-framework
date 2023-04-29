@@ -2,8 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Service.Abstractions\Service.Abstractions.csproj" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.6" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.100.121" />
+  </ItemGroup>
 
 </Project>

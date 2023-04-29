@@ -1,14 +1,17 @@
-using WebApplication1.Extensions;
+using Service.Abstractions;
+using Service.Sqs;
+using Service.Sqs.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddTransient<ISubscribeSqs<HelloDto>, HelloDtoHandler>();
-builder.Host.UseEffectSqs(AppServiceType.ServiceA, (x, sp) => x);
+builder.Services.AddTransient<ISubscribeSqs<string>, StringSqsHandler>();
+builder.Host.UseEffectSqs(AppServiceType.ServiceA, (x, sp) => x with
+{
+    IsGreenCircuitBreakAsync = async _ => await Task.FromResult(true)
+});
 
 
 var app = builder.Build();

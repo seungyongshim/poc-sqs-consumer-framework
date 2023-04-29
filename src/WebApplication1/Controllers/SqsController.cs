@@ -1,7 +1,6 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Dto;
 
 namespace WebApplication1.Controllers;
 
@@ -9,10 +8,7 @@ namespace WebApplication1.Controllers;
 [Route("[controller]")]
 public class SqsController : ControllerBase
 {
-    public SqsController(IAmazonSQS amazonSQS)
-    {
-        AmazonSQS = amazonSQS;
-    }
+    public SqsController(IAmazonSQS amazonSQS) => AmazonSQS = amazonSQS;
 
     public IAmazonSQS AmazonSQS { get; }
 
@@ -22,7 +18,7 @@ public class SqsController : ControllerBase
         var guid = Guid.NewGuid().ToString();   
 
         var q = from x in Enumerable.Range(0, 10)
-                from y in Enumerable.Range(0, 1)
+                from y in Enumerable.Range(0, 2)
                 select Task.Run(async () =>
                 {
                     while (true)

@@ -1,4 +1,4 @@
-namespace WebApplication1.Extensions;
+namespace Service.Abstractions;
 
 public enum AppServiceType
 {

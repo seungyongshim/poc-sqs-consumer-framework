@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 
-namespace WebApplication1;
+namespace Service.Sqs.Internal;
 
-public sealed class SingleThreadTaskScheduler : TaskScheduler, IDisposable
+internal sealed class SingleThreadTaskScheduler : TaskScheduler, IDisposable
 {
     public Thread Thread { get; }
     public CancellationTokenSource CancellationTokenSource { get; } = new();

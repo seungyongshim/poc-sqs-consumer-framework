@@ -1,21 +1,20 @@
-using System.Text.Json;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Microsoft.Extensions.Configuration;
-using WebApplication1.Controllers;
-using WebApplication1.Dto;
-using WebApplication1.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Service.Sqs.Config;
+using Service.Sqs.Internal;
 
-namespace WebApplication1;
+namespace Service.Sqs;
 
 //https://github.com/awslabs/aws-dotnet-messaging/blob/main/src/AWS.Messaging/SQS/SQSMessagePoller.cs#L18
 
-public class SqsHostedService : IHostedService
+public class SqsHostedService<T> : IHostedService where T : struct, Enum
 {
-    public SqsHostedService(IServiceProvider sp, SqsOptionsContext option)
+    public SqsHostedService(IServiceProvider sp, SqsOptions option, T index)
     {
         ServiceProvider = sp;
-        Option = option;
+        Option = option.Value[Enum.GetName(index)!];
     }
 
     public IServiceProvider ServiceProvider { get; }
@@ -24,13 +23,6 @@ public class SqsHostedService : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         var sqs = ServiceProvider.GetRequiredService<IAmazonSQS>();
-
-        //var sqs = new AmazonSQSClient(new AmazonSQSConfig
-        //{
-            
-        //    MaxConnectionsPerServer = 1
-        //});
-
         var single = new SingleThreadTaskScheduler();
 
         var tasks = from config in Option.SqsConfigs
@@ -39,7 +31,7 @@ public class SqsHostedService : IHostedService
                     {
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            if ((await Option.IsGreenCircuitBreakAsync(ServiceProvider)) is false)
+                            if (await Option.IsGreenCircuitBreakAsync(ServiceProvider) is false)
                             {
                                 await Task.Delay(TimeSpan.FromSeconds(1));
                                 continue; // circuit break
@@ -48,15 +40,11 @@ public class SqsHostedService : IHostedService
                             try
                             {
                                 await using var scope = ServiceProvider.CreateAsyncScope();
-                                
-
                                 var res = await sqs.ReceiveMessageAsync(new ReceiveMessageRequest
                                 {
                                     QueueUrl = config.Url,
                                     MaxNumberOfMessages = config.MaxNumberOfMessages,
                                     WaitTimeSeconds = 20,
-                                    //VisibilityTimeout = _configuration.VisibilityTimeout,
-                                    //WaitTimeSeconds = _configuration.WaitTimeSeconds,
                                     AttributeNames = new List<string> { "All" },
                                     MessageAttributeNames = new List<string> { "All" }
                                 }, cancellationToken);
@@ -68,10 +56,10 @@ public class SqsHostedService : IHostedService
                                             {
                                                 //var msg = JsonSerializer.Deserialize<HelloDto>(a.Body);
 
-                                                if (a.i % 2 == 1)
-                                                    throw new Exception();
+                                                //if (a.i % 2 == 1)
+                                                //    throw new Exception();
 
-                                                var msg = new HelloDto() { Name = $"{y} {a.i} {a.x.Body}" };
+                                                var msg = $"{y} {a.i} {a.x.Body}";
                                                 var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
                                                 var c = scope.ServiceProvider.GetRequiredService(type);
                                                 var m = type.GetMethod("HandleAsync");
@@ -81,10 +69,8 @@ public class SqsHostedService : IHostedService
                                                     _ => Task.CompletedTask
                                                 };
 
-                                                Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}]Handle: {msg}, {a.x.Attributes["MessageGroupId"]}");
-
                                                 await t1;
-                                                await sqs.DeleteMessageAsync(new DeleteMessageRequest
+                                                _ = await sqs.DeleteMessageAsync(new DeleteMessageRequest
                                                 {
                                                     QueueUrl = config.Url,
                                                     ReceiptHandle = a.x.ReceiptHandle
