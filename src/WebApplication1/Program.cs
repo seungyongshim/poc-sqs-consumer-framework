@@ -1,5 +1,5 @@
 using Service.Abstractions;
-using Service.Sqs;
+using Service.Sqs.Abstractions;
 using Service.Sqs.Extensions;
 using WebApplication1.Controllers;
 

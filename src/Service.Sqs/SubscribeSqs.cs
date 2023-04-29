@@ -1,3 +1,5 @@
+using Service.Sqs.Abstractions;
+
 namespace Service.Sqs;
 
 public class SubscribeSqs<T> : ISubscribeSqs<T> where T : notnull

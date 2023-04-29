@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Service.Abstractions;
-using Service.Sqs;
+using Service.Sqs.Abstractions;
 using Service.Sqs.Config;
 using Service.Sqs.Internal;
 
@@ -49,12 +49,14 @@ public static partial class UseSqsExtension
         return host;
     }
 
-    public static IHostBuilder UseEffectSqs<T>(this IHostBuilder host,
-                                               T appServiceType,
-                                               Func<SqsOptionsContext, IServiceProvider, SqsOptionsContext>? func = null) where T : struct, Enum
+    public static IHostBuilder UseEffectSqs<T>
+    (
+        this IHostBuilder host,
+        T appServiceType,
+        Func<SqsOptionsContext, IServiceProvider, SqsOptionsContext>? func = null
+    ) where T : struct, Enum
     {
         _ = host.UseEffect(appServiceType, func);
-
         _ = host.ConfigureServices((ctx, services) =>
         {
             _ = services.AddSingleton<ISqsService, SqsService>();
@@ -67,7 +69,7 @@ public static partial class UseSqsExtension
             }));
 
             _ = services.AddTransient(typeof(ISubscribeSqs<>), typeof(SubscribeSqs<>));
-            _ = services.AddHostedService(sp => new SqsHostedService<T>(sp, sp.GetRequiredService<SqsOptions>(), appServiceType));
+            _ = services.AddHostedService(sp => new SqsHostedService<T>(sp, appServiceType));
         });
 
         return host;

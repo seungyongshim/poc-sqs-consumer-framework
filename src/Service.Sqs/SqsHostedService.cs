@@ -2,6 +2,8 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Service.Sqs.Abstractions;
 using Service.Sqs.Config;
 using Service.Sqs.Internal;
 
@@ -11,14 +13,16 @@ namespace Service.Sqs;
 
 public class SqsHostedService<T> : IHostedService where T : struct, Enum
 {
-    public SqsHostedService(IServiceProvider sp, SqsOptions option, T index)
+    public SqsHostedService(IServiceProvider sp, T index)
     {
         ServiceProvider = sp;
-        Option = option.Value[Enum.GetName(index)!];
+        Option = sp.GetRequiredService<SqsOptions>().Value[Enum.GetName(index)!];
+        Logger = sp.GetRequiredService<ILogger<SqsHostedService<T>>>();
     }
 
     public IServiceProvider ServiceProvider { get; }
     public SqsOptionsContext Option { get; }
+    public ILogger Logger {get;}
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -73,7 +77,7 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                                             }
                                             catch (Exception ex)
                                             {
-                                                Console.WriteLine(ex);
+                                                Logger.LogError(ex, "");
                                             }
                                         }, default, TaskCreationOptions.LongRunning, single).Unwrap();
 
@@ -81,7 +85,8 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine(ex);
+                                await Task.Delay(3000);
+                                Logger.LogError(ex, "");
                             }
                         }
                     }, default, TaskCreationOptions.LongRunning, single).Unwrap();

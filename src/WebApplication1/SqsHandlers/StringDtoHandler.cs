@@ -1,4 +1,4 @@
-using Service.Sqs;
+using Service.Sqs.Abstractions;
 using WebApplication1.Controllers;
 
 public class NewRecordSqsHandler : ISubscribeSqs<NewRecord>

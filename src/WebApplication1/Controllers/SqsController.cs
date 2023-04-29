@@ -1,8 +1,6 @@
-using Amazon.SQS;
-using Amazon.SQS.Model;
 using Microsoft.AspNetCore.Mvc;
 using Service.Abstractions;
-using Service.Sqs;
+using Service.Sqs.Abstractions;
 
 namespace WebApplication1.Controllers;
 
@@ -17,11 +15,11 @@ public class SqsController : ControllerBase
     [HttpGet(Name = "Testbed")]
     public async Task Get()
     {
-        var guid = Guid.NewGuid().ToString();   
+        var guid = Guid.NewGuid().ToString();
 
         var q = from x in Enumerable.Range(0, 10)
                 from y in Enumerable.Range(0, 2)
-                select SqsService.SendMessageAsync(AppNameType.ServiceA, new NewRecord(x,y, guid));
+                select SqsService.SendMessageAsync(AppNameType.ServiceA, new NewRecord(x, y, guid));
 
         foreach (var item in q)
         {

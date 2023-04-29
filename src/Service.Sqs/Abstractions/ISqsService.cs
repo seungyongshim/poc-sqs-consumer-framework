@@ -1,4 +1,4 @@
-namespace Service.Sqs;
+namespace Service.Sqs.Abstractions;
 
 public interface ISqsService
 {
