@@ -1,4 +1,5 @@
 using Service.Abstractions;
+using Service.Echo;
 using Service.Sqs.Abstractions;
 using Service.Sqs.Extensions;
 using WebApplication1.Controllers;
@@ -9,13 +10,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<ISubscribeSqs<NewRecord>, NewRecordSqsHandler>();
+builder.Host.UseEchoService();
 builder.Host.UseEffectSqs(AppNameType.ServiceA, (x, sp) => x with
 {
     IsGreenCircuitBreakAsync = () => Task.FromResult(true)
 });
 
 
-var app = builder.Build();
+var app = builder.Build(); 
 
 if (app.Environment.IsDevelopment())
 {

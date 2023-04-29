@@ -12,7 +12,7 @@ public class SqsController : ControllerBase
 
     public ISqsService SqsService { get; }
 
-    [HttpGet(Name = "Testbed")]
+    [HttpGet]
     public async Task Get()
     {
         var guid = Guid.NewGuid().ToString();
