@@ -1,5 +1,7 @@
 using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
 using Amazon.SQS;
+using Microsoft.Extensions.DependencyInjection;
 using WebApplication1.Controllers;
 
 namespace WebApplication1.Extensions;
@@ -48,17 +50,52 @@ public static partial class UseSqsExtension
 
         _ = host.ConfigureServices((ctx, services) =>
         {
-            _ = services.AddAWSService<IAmazonSQS>(new AWSOptions()
+            _ = services.AddHttpClient("SQS");
+            _ = services.AddSingleton<SqsHttpClientFactory>();
+            _ = services.AddSingleton<IAmazonSQS, AmazonSQSClient>(sp => new AmazonSQSClient(new AmazonSQSConfig
             {
-
-            });
+                RegionEndpoint = sp.GetRequiredService<AWSOptions>().Region,
+                HttpClientFactory = sp.GetRequiredService<SqsHttpClientFactory>(),
+                //CacheHttpClient = false,
+                //BufferSize = 4096*2,
+                //HttpClientCacheSize = 4096,
+                //MaxErrorRetry = 1,
+            }));
+            
             _ = services.AddTransient(typeof(ISubscribeSqs<>), typeof(SubscribeSqs<>));
             _ = services.AddHostedService(sp => new SqsHostedService(sp, sp.GetRequiredService<SqsOptions>().Value[appServiceType]));
         });
 
         return host;
     }
+}
 
+public class SqsHttpClientFactory : HttpClientFactory
+{
+    public IHttpClientFactory HttpClientFactory { get; }
 
-    
+    public SqsHttpClientFactory(IHttpClientFactory httpClientFactory)
+    {
+        HttpClientFactory = httpClientFactory;
+    }
+
+    public override HttpClient CreateHttpClient(IClientConfig clientConfig)
+    {
+        return HttpClientFactory.CreateClient("SQS");
+    }
+    public override bool UseSDKHttpClientCaching(IClientConfig clientConfig)
+    {
+        // return false to indicate that the SDK should not cache clients internally
+        return false;
+    }
+    public override bool DisposeHttpClientsAfterUse(IClientConfig clientConfig)
+    {
+        // return false to indicate that the SDK shouldn't dispose httpClients because they're cached in your pool
+        return false;
+    }
+    public override string GetConfigUniqueString(IClientConfig clientConfig)
+    {
+        // has no effect because UseSDKHttpClientCaching returns false
+        return null;
+    }
 }

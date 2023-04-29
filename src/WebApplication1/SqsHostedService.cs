@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.Configuration;
@@ -32,8 +33,8 @@ public class SqsHostedService : IHostedService
 
         var single = new SingleThreadTaskScheduler();
 
-        var tasks = from x in Option.SqsUrls
-                    from y in Enumerable.Range(0, x.Parallelism)
+        var tasks = from config in Option.SqsConfigs
+                    from y in Enumerable.Range(0, config.Parallelism)
                     select Task.Factory.StartNew(async () =>
                     {
                         while (!cancellationToken.IsCancellationRequested)
@@ -51,34 +52,58 @@ public class SqsHostedService : IHostedService
 
                                 var res = await sqs.ReceiveMessageAsync(new ReceiveMessageRequest
                                 {
-                                    QueueUrl = x.Url,
-                                    MaxNumberOfMessages = 10,
+                                    QueueUrl = config.Url,
+                                    MaxNumberOfMessages = config.MaxNumberOfMessages,
+                                    WaitTimeSeconds = 20,
                                     //VisibilityTimeout = _configuration.VisibilityTimeout,
                                     //WaitTimeSeconds = _configuration.WaitTimeSeconds,
                                     AttributeNames = new List<string> { "All" },
                                     MessageAttributeNames = new List<string> { "All" }
                                 }, cancellationToken);
 
-                                var msg = new HelloDto() { Name = $"{y}" };
-                                var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
+                                var q = from a in res.Messages.Select((x, i) => (x, i))
+                                        select Task.Factory.StartNew(async () =>
+                                        {
+                                            try
+                                            {
+                                                //var msg = JsonSerializer.Deserialize<HelloDto>(a.Body);
 
-                                var c = scope.ServiceProvider.GetRequiredService(type);
-                                var m = type.GetMethod("HandleAsync");
+                                                if (a.i % 2 == 1)
+                                                    throw new Exception();
 
-                                var t1 = m?.Invoke(c, new object[] { msg, cancellationToken }) switch
-                                {
-                                    Task v => v,
-                                    _ => Task.CompletedTask
-                                };
+                                                var msg = new HelloDto() { Name = $"{y} {a.i} {a.x.Body}" };
+                                                var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
+                                                var c = scope.ServiceProvider.GetRequiredService(type);
+                                                var m = type.GetMethod("HandleAsync");
+                                                var t1 = m?.Invoke(c, new object[] { msg, cancellationToken }) switch
+                                                {
+                                                    Task v => v,
+                                                    _ => Task.CompletedTask
+                                                };
 
-                                await t1;
+                                                Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}]Handle: {msg}, {a.x.Attributes["MessageGroupId"]}");
+
+                                                await t1;
+                                                await sqs.DeleteMessageAsync(new DeleteMessageRequest
+                                                {
+                                                    QueueUrl = config.Url,
+                                                    ReceiptHandle = a.x.ReceiptHandle
+                                                }, cancellationToken);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Console.WriteLine(ex);
+                                            }
+                                        }, default, TaskCreationOptions.LongRunning, single).Unwrap();
+
+                                await Task.WhenAll(q);
                             }
                             catch (Exception ex)
                             {
                                 Console.WriteLine(ex);
                             }
                         }
-                    }, default, TaskCreationOptions.LongRunning, single);
+                    }, default, TaskCreationOptions.LongRunning, single).Unwrap();
 
         foreach (var task in tasks)
         {

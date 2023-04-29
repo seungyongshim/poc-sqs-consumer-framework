@@ -1,5 +1,3 @@
-using WebApplication1.Dto;
-
 namespace WebApplication1.Controllers;
 
 public class SubscribeSqs<T> : ISubscribeSqs<T>
