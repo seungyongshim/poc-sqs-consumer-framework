@@ -5,5 +5,5 @@ namespace Service.Sqs;
 
 public interface ISubscribeSqs<T>
 {
-    Task HandleAsync(T dto, CancellationToken ct);
+    Task HandleAsync(T dto);
 }

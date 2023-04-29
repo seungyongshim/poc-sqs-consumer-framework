@@ -1,22 +1,22 @@
 using Service.Abstractions;
 using Service.Sqs;
 using Service.Sqs.Extensions;
+using WebApplication1.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<ISubscribeSqs<string>, StringSqsHandler>();
-builder.Host.UseEffectSqs(AppServiceType.ServiceA, (x, sp) => x with
+builder.Services.AddTransient<ISubscribeSqs<NewRecord>, NewRecordSqsHandler>();
+builder.Host.UseEffectSqs(AppNameType.ServiceA, (x, sp) => x with
 {
-    IsGreenCircuitBreakAsync = async _ => await Task.FromResult(true)
+    IsGreenCircuitBreakAsync = () => Task.FromResult(true)
 });
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     _ = app.UseSwagger();
@@ -24,7 +24,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
-
 app.MapControllers();
-
-app.Run();
+await app.RunAsync();

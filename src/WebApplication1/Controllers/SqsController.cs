@@ -1,6 +1,8 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.AspNetCore.Mvc;
+using Service.Abstractions;
+using Service.Sqs;
 
 namespace WebApplication1.Controllers;
 
@@ -8,9 +10,9 @@ namespace WebApplication1.Controllers;
 [Route("[controller]")]
 public class SqsController : ControllerBase
 {
-    public SqsController(IAmazonSQS amazonSQS) => AmazonSQS = amazonSQS;
+    public SqsController(ISqsService sqsService) => SqsService = sqsService;
 
-    public IAmazonSQS AmazonSQS { get; }
+    public ISqsService SqsService { get; }
 
     [HttpGet(Name = "Testbed")]
     public async Task Get()
@@ -19,27 +21,7 @@ public class SqsController : ControllerBase
 
         var q = from x in Enumerable.Range(0, 10)
                 from y in Enumerable.Range(0, 2)
-                select Task.Run(async () =>
-                {
-                    while (true)
-                    {
-                        try
-                        {
-                            _ = await AmazonSQS.SendMessageAsync(new SendMessageRequest
-                            {
-                                QueueUrl = "https://sqs.ap-northeast-2.amazonaws.com/575717842801/unittest1.fifo",
-                                MessageBody = $"{x}",
-                                MessageGroupId = $"{y}{guid}",
-                            });
-                            break;
-                        }
-                        catch (AmazonSQSException ex) when (ex.Message == "Request is throttled.")
-                        {
-                            await Task.Delay(TimeSpan.FromMilliseconds(10));
-                            Console.WriteLine("Catch.. Request is throttled");
-                        }
-                    }
-                });
+                select SqsService.SendMessageAsync(AppNameType.ServiceA, new NewRecord(x,y, guid));
 
         foreach (var item in q)
         {
@@ -48,5 +30,4 @@ public class SqsController : ControllerBase
     }
 }
 
-
-
+public record NewRecord(int Name, int Value, string guid);

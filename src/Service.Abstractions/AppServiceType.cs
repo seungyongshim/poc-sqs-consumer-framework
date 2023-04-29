@@ -1,6 +1,6 @@
 namespace Service.Abstractions;
 
-public enum AppServiceType
+public enum AppNameType
 {
     None,
     ServiceA,

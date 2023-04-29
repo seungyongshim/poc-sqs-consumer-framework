@@ -31,7 +31,7 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                     {
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            if (await Option.IsGreenCircuitBreakAsync(ServiceProvider) is false)
+                            if (await Option.IsGreenCircuitBreakAsync() is false)
                             {
                                 await Task.Delay(TimeSpan.FromSeconds(1));
                                 continue; // circuit break
@@ -54,16 +54,11 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                                         {
                                             try
                                             {
-                                                //var msg = JsonSerializer.Deserialize<HelloDto>(a.Body);
-
-                                                //if (a.i % 2 == 1)
-                                                //    throw new Exception();
-
-                                                var msg = $"{y} {a.i} {a.x.Body}";
+                                                var msg = TypedJsonSerializer.Deserialize(a.x.Body);
                                                 var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
                                                 var c = scope.ServiceProvider.GetRequiredService(type);
                                                 var m = type.GetMethod("HandleAsync");
-                                                var t1 = m?.Invoke(c, new object[] { msg, cancellationToken }) switch
+                                                var t1 = m?.Invoke(c, new object[] { msg }) switch
                                                 {
                                                     Task v => v,
                                                     _ => Task.CompletedTask

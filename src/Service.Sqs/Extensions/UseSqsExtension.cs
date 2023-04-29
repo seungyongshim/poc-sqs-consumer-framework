@@ -57,6 +57,7 @@ public static partial class UseSqsExtension
 
         _ = host.ConfigureServices((ctx, services) =>
         {
+            _ = services.AddSingleton<ISqsService, SqsService>();
             _ = services.AddHttpClient("SQS");
             _ = services.AddSingleton<SqsHttpClientFactory>();
             _ = services.AddSingleton<IAmazonSQS, AmazonSQSClient>(sp => new AmazonSQSClient(new AmazonSQSConfig
