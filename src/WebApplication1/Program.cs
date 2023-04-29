@@ -3,6 +3,7 @@ using Service.Echo;
 using Service.Sqs.Abstractions;
 using Service.Sqs.Extensions;
 using WebApplication1.Controllers;
+using WebApplication1.SqsHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 

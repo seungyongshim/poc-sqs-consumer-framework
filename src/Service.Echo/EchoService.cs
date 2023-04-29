@@ -1,4 +1,7 @@
+using System.Net;
+using System.Security.Cryptography;
 using Service.Echo.Abstractions;
+using static Service.Echo.Prelude;
 
 namespace Service.Echo;
 
@@ -12,8 +15,18 @@ public class EchoService : IEchoService
 
     public IEchoApi EchoApi { get; }
 
-    public Task<string> EchoString(string id) => EchoApi.EchoString(new EchoRequest
+    public async Task<string> EchoString(string id)
     {
-        Id = id
-    });
+        if (RandomNumberGenerator.GetInt32(3) == 0)
+        {
+            throw new Exception("Random error");
+        }
+
+        using var res = await Retry(() => EchoApi.EchoAsync(new EchoRequest
+        {
+            Id = id
+        }));
+
+        return res.Content;
+    }
 }

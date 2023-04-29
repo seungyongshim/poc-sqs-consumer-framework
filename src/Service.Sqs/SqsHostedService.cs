@@ -29,71 +29,71 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
         var sqs = ServiceProvider.GetRequiredService<IAmazonSQS>();
         var single = new SingleThreadTaskScheduler();
 
-        var tasks = from config in Option.SqsConfigs
-                    from y in Enumerable.Range(0, config.Parallelism)
-                    select Task.Factory.StartNew(async () =>
+        var tasks =
+            from config in Option.SqsConfigs
+            from y in Enumerable.Range(0, config.Parallelism)
+            select Task.Factory.StartNew(async () =>
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    if (await Option.IsGreenCircuitBreakAsync() is false)
                     {
-                        while (!cancellationToken.IsCancellationRequested)
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                        continue; // circuit break
+                    }
+
+                    try
+                    {
+                        await using var scope = ServiceProvider.CreateAsyncScope();
+                        var res = await sqs.ReceiveMessageAsync(new ReceiveMessageRequest
                         {
-                            if (await Option.IsGreenCircuitBreakAsync() is false)
-                            {
-                                await Task.Delay(TimeSpan.FromSeconds(1));
-                                continue; // circuit break
-                            }
+                            QueueUrl = config.Url,
+                            MaxNumberOfMessages = config.MaxNumberOfMessages,
+                            WaitTimeSeconds = 20,
+                            AttributeNames = new List<string> { "All" },
+                            MessageAttributeNames = new List<string> { "All" }
+                        }, cancellationToken);
 
-                            try
+                        var q =
+                            from a in res.Messages.Select((x, i) => (x, i))
+                            select Task.Factory.StartNew(async () =>
                             {
-                                await using var scope = ServiceProvider.CreateAsyncScope();
-                                var res = await sqs.ReceiveMessageAsync(new ReceiveMessageRequest
+                                try
                                 {
-                                    QueueUrl = config.Url,
-                                    MaxNumberOfMessages = config.MaxNumberOfMessages,
-                                    WaitTimeSeconds = 20,
-                                    AttributeNames = new List<string> { "All" },
-                                    MessageAttributeNames = new List<string> { "All" }
-                                }, cancellationToken);
+                                    var msg = TypedJsonSerializer.Deserialize(a.x.Body);
+                                    var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
+                                    var c = scope.ServiceProvider.GetRequiredService(type);
+                                    var m = type.GetMethod("HandleAsync");
+                                    var t1 = m?.Invoke(c, new object[] { msg }) switch
+                                    {
+                                        Task v => v,
+                                        _ => Task.CompletedTask
+                                    };
 
-                                var q = from a in res.Messages.Select((x, i) => (x, i))
-                                        select Task.Factory.StartNew(async () =>
-                                        {
-                                            try
-                                            {
-                                                var msg = TypedJsonSerializer.Deserialize(a.x.Body);
-                                                var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
-                                                var c = scope.ServiceProvider.GetRequiredService(type);
-                                                var m = type.GetMethod("HandleAsync");
-                                                var t1 = m?.Invoke(c, new object[] { msg }) switch
-                                                {
-                                                    Task v => v,
-                                                    _ => Task.CompletedTask
-                                                };
+                                    await t1;
+                                    _ = await sqs.DeleteMessageAsync(new DeleteMessageRequest
+                                    {
+                                        QueueUrl = config.Url,
+                                        ReceiptHandle = a.x.ReceiptHandle
+                                    }, cancellationToken);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.LogError(ex, "");
+                                }
+                            }, default, TaskCreationOptions.LongRunning, single).Unwrap();
 
-                                                await t1;
-                                                _ = await sqs.DeleteMessageAsync(new DeleteMessageRequest
-                                                {
-                                                    QueueUrl = config.Url,
-                                                    ReceiptHandle = a.x.ReceiptHandle
-                                                }, cancellationToken);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                Logger.LogError(ex, "");
-                                            }
-                                        }, default, TaskCreationOptions.LongRunning, single).Unwrap();
+                        await Task.WhenAll(q);
+                    }
+                    catch (Exception ex)
+                    {
+                        await Task.Delay(3000);
+                        Logger.LogError(ex, "");
+                    }
+                }
+            }, default, TaskCreationOptions.LongRunning, single).Unwrap();
 
-                                await Task.WhenAll(q);
-                            }
-                            catch (Exception ex)
-                            {
-                                await Task.Delay(3000);
-                                Logger.LogError(ex, "");
-                            }
-                        }
-                    }, default, TaskCreationOptions.LongRunning, single).Unwrap();
-
-        foreach (var task in tasks)
-        {
-        }
+        _ = Task.WhenAll(tasks);
 
         return Task.CompletedTask;
     }

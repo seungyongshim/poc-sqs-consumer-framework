@@ -7,5 +7,5 @@ public interface IEchoApi
     HttpClient Client { get; }
 
     [Post("/post")]
-    Task<string> EchoString([Body] EchoRequest id);
+    Task<IApiResponse<string>> EchoAsync([Body] EchoRequest id);
 }
