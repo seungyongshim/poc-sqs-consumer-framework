@@ -15,7 +15,7 @@ public class EchoService : IEchoService
 
     public IEchoApi EchoApi { get; }
 
-    public async Task<string> EchoString(string id)
+    public async Task<string> EchoStringAsync(string id)
     {
         if (RandomNumberGenerator.GetInt32(3) == 0)
         {

@@ -19,7 +19,7 @@ public class SqsController : ControllerBase
 
         var q = from x in Enumerable.Range(0, 10)
                 from y in Enumerable.Range(0, 2)
-                select SqsService.SendMessageAsync(AppNameType.ServiceA, new NewRecord(x, y, guid));
+                select SqsService.SendMessageAsync<App1>(new NewRecord(x, y, guid));
 
         foreach (var item in q)
         {

@@ -20,12 +20,12 @@ public class EchoController : ControllerBase
             {
                 return Results.Ok(new
                 {
-                    Echo = await echoService.EchoString(data)
+                    Echo = await echoService.EchoStringAsync(data)
                 });
             }
             catch (Exception ex)
             {
-                return Results.Problem(detail: ex.ToString());
+                return Results.Problem(detail: $"{ex.GetType().Name}: {ex.Message}");
             }
         });
 

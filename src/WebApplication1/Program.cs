@@ -14,7 +14,11 @@ builder.Services.AddTransient<ISubscribeSqs<NewRecord>, NewRecordSqsHandler>();
 builder.Host.UseEchoService();
 builder.Host.UseEffectSqs(AppNameType.ServiceA, (x, sp) => x with
 {
-    IsGreenCircuitBreakAsync = () => Task.FromResult(true)
+    IsGreenCircuitBreakAsync = () => Task.FromResult(false)
+});
+builder.Host.UseEffectSqs(AppNameType.ServiceB, (x, sp) => x with
+{
+    IsGreenCircuitBreakAsync = () => Task.FromResult(false)
 });
 
 

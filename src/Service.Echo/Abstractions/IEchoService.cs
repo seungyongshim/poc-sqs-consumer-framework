@@ -2,5 +2,5 @@ namespace Service.Echo.Abstractions;
 
 public interface IEchoService
 {
-    Task<string> EchoString(string id);
+    Task<string> EchoStringAsync(string id);
 }
