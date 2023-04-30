@@ -3,6 +3,6 @@ namespace Service.Abstractions;
 public enum AppNameType
 {
     None,
-    ServiceA,
-    ServiceB
+    App1,
+    App2
 }

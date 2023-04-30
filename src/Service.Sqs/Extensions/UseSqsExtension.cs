@@ -27,7 +27,7 @@ public static partial class UseSqsExtension
     public static IHostBuilder UseEffect<T, TC>
     (
         this IHostBuilder host,
-        T appServiceType,
+        T appName,
         Func<TC, IServiceProvider, TC>? func = null
     ) where T : struct, Enum
       where TC : class
@@ -42,7 +42,7 @@ public static partial class UseSqsExtension
                         .BindConfiguration("")
                         .PostConfigure<IServiceProvider>((option, sp) =>
                         {
-                            option[Enum.GetName(appServiceType)!] = func.Invoke(option[Enum.GetName(appServiceType)!], sp);
+                            option[Enum.GetName(appName)!] = func.Invoke(option[Enum.GetName(appName)!], sp);
                         });
         });
 
@@ -52,11 +52,11 @@ public static partial class UseSqsExtension
     public static IHostBuilder UseEffectSqs<T>
     (
         this IHostBuilder host,
-        T appServiceType,
+        T appName,
         Func<SqsOptionsContext, IServiceProvider, SqsOptionsContext>? func = null
     ) where T : struct, Enum
     {
-        _ = host.UseEffect(appServiceType, func);
+        _ = host.UseEffect(appName, func);
         _ = host.ConfigureServices((ctx, services) =>
         {
             _ = services.AddSingleton<ISqsService, SqsService>();
@@ -69,7 +69,7 @@ public static partial class UseSqsExtension
             }));
 
             _ = services.AddTransient(typeof(ISubscribeSqs<>), typeof(SubscribeSqs<>));
-            _ = services.AddHostedService(sp => new SqsHostedService<T>(sp, appServiceType));
+            _ = services.AddHostedServices(sp => new SqsHostedService<T>(sp, appName));
         });
 
         return host;

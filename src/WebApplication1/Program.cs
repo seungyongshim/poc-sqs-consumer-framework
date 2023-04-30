@@ -12,13 +12,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<ISubscribeSqs<NewRecord>, NewRecordSqsHandler>();
 builder.Host.UseEchoService();
-builder.Host.UseEffectSqs(AppNameType.ServiceA, (x, sp) => x with
+builder.Host.UseEffectSqs(AppNameType.App1, (x, sp) => x with
 {
-    IsGreenCircuitBreakAsync = () => Task.FromResult(false)
+    IsGreenCircuitBreakAsync = () => Task.FromResult(true)
 });
-builder.Host.UseEffectSqs(AppNameType.ServiceB, (x, sp) => x with
+builder.Host.UseEffectSqs(AppNameType.App2, (x, sp) => x with
 {
-    IsGreenCircuitBreakAsync = () => Task.FromResult(false)
+    IsGreenCircuitBreakAsync = () => Task.FromResult(true)
 });
 
 
