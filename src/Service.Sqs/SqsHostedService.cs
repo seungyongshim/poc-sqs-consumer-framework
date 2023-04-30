@@ -58,36 +58,36 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                             from a in res.Messages.Select((x, i) => (x, i))
                             select Task.Factory.StartNew(async () =>
                             {
-                                try
-                                {
-                                    var msg = TypedJsonSerializer.Deserialize(a.x.Body);
-                                    var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
-                                    var c = scope.ServiceProvider.GetRequiredService(type);
-                                    var m = type.GetMethod("HandleAsync");
-                                    var t1 = m?.Invoke(c, new object[] { msg }) switch
-                                    {
-                                        Task v => v,
-                                        _ => Task.CompletedTask
-                                    };
+                                //if (a.i % 2 == 1) throw new Exception("Test");
 
-                                    await t1;
-                                    _ = await sqs.DeleteMessageAsync(new DeleteMessageRequest
-                                    {
-                                        QueueUrl = config.Url,
-                                        ReceiptHandle = a.x.ReceiptHandle
-                                    }, cancellationToken);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.LogError(ex, "");
-                                }
-                            }, default, TaskCreationOptions.LongRunning, single).Unwrap();
 
-                        await Task.WhenAll(q);
+                                var msg = TypedJsonSerializer.Deserialize(a.x.Body);
+                                var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
+                                var c = scope.ServiceProvider.GetRequiredService(type);
+                                var m = type.GetMethod("HandleAsync");
+                                var t1 = m?.Invoke(c, new object[] { msg }) switch
+                                {
+                                    Task v => v,
+                                    _ => Task.CompletedTask
+                                };
+
+                                await t1;
+                                _ = await sqs.DeleteMessageAsync(new DeleteMessageRequest
+                                {
+                                    QueueUrl = config.Url,
+                                    ReceiptHandle = a.x.ReceiptHandle
+                                }, cancellationToken);
+                               
+                            }, default, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+                        foreach(var x in q)
+                        {
+                            await x;
+                        }
                     }
                     catch (Exception ex)
                     {
-                        await Task.Delay(3000);
+                        await Task.Delay(1000);
                         Logger.LogError(ex, "");
                     }
                 }

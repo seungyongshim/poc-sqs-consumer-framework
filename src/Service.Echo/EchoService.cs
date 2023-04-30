@@ -17,11 +17,6 @@ public class EchoService : IEchoService
 
     public async Task<string> EchoStringAsync(string id)
     {
-        if (RandomNumberGenerator.GetInt32(3) == 0)
-        {
-            throw new Exception("Random error");
-        }
-
         using var res = await Retry(() => EchoApi.EchoAsync(new EchoRequest
         {
             Id = id

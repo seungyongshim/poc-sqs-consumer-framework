@@ -1,4 +1,5 @@
-﻿using Refit;
+using System.Net;
+using Refit;
 
 namespace Service.Echo;
 
@@ -10,17 +11,18 @@ public static class Prelude
         {
             var res = await api.Invoke();
 
-            //if (res.IsSuccessStatusCode)
-            //{
-            //    return res;
-            //}
+            if (res.IsSuccessStatusCode)
+            {
+                return res;
+            }
 
-            //await (res.StatusCode switch
-            //{
-            //    HttpStatusCode.TooManyRequests => Task.Delay(TimeSpan.FromMilliseconds(100)),
-            //    HttpStatusCode.ServiceUnavailable => Task.Delay(TimeSpan.FromMilliseconds(100)),
-            //    _ => throw res.Error ?? new Exception(res.ReasonPhrase)
-            //});
+            await (res.StatusCode switch
+            {
+                HttpStatusCode.TooManyRequests => Task.Delay(TimeSpan.FromMilliseconds(100*i)),
+                HttpStatusCode.ServiceUnavailable or
+                HttpStatusCode.InternalServerError => Task.Delay(TimeSpan.FromMilliseconds(100*i)),
+                _ => throw res.Error ?? new Exception(res.ReasonPhrase)
+            });
         }
 
         throw new Exception("Too many retries");

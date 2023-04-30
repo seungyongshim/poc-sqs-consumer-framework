@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Refit;
 using Service.Echo.Abstractions;
@@ -11,10 +11,7 @@ public static class EchoExtensions
     {
         hostBuilder.ConfigureServices((context, services) =>
         {
-            services.AddRefitClient<IEchoApi>()
-                    .ConfigureHttpClient((sp, client) =>
-                    {
-                    });
+            services.AddRefitClient<IEchoApi>();
             services.AddSingleton<IEchoService, EchoService>();
         });
 

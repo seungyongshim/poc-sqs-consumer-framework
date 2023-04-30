@@ -17,9 +17,13 @@ public class SqsController : ControllerBase
     {
         var guid = Guid.NewGuid().ToString();
 
-        var q = from x in Enumerable.Range(0, 10)
+        var q = from x in Enumerable.Range(0, 100)
                 from y in Enumerable.Range(0, 2)
-                select SqsService.SendMessageAsync(AppNameType.App2, new NewRecord(x, y, guid));
+                select SqsService.SendMessageAsync(y switch
+                {
+                    0 => AppNameType.App1,
+                    1 => AppNameType.App2
+                }, new NewRecord(x, y, guid));
 
         foreach (var item in q)
         {
