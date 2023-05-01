@@ -5,6 +5,8 @@ namespace WebApplication1.SqsHandlers;
 
 public class NewRecordSqsHandler : ISubscribeSqs<NewRecord>
 {
+    public int VisibleTimeOutSec { get; } = 10;
+
     public Task HandleAsync(NewRecord dto)
     {
         Console.WriteLine(dto);

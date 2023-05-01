@@ -60,11 +60,26 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                             {
                                 //if (a.i % 2 == 1) throw new Exception("Test");
 
-
                                 var msg = TypedJsonSerializer.Deserialize(a.x.Body);
                                 var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
                                 var c = scope.ServiceProvider.GetRequiredService(type);
+
+                                var visibleTime = type.GetProperty(nameof(ISubscribeSqs<T>.VisibleTimeOutSec));
+
+                                await (visibleTime?.GetValue(c) switch
+                                {
+                                    30 => Task.CompletedTask,
+                                    int v => Task.Run(async () => await sqs.ChangeMessageVisibilityAsync(new ChangeMessageVisibilityRequest
+                                    {
+                                        QueueUrl = config.Url,
+                                        ReceiptHandle = a.x.ReceiptHandle,
+                                        VisibilityTimeout = v
+                                    })),
+                                    _ => Task.CompletedTask,
+                                });
+
                                 var m = type.GetMethod("HandleAsync");
+
                                 var t1 = m?.Invoke(c, new object[] { msg }) switch
                                 {
                                     Task v => v,
@@ -76,7 +91,7 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                                 {
                                     QueueUrl = config.Url,
                                     ReceiptHandle = a.x.ReceiptHandle
-                                }, cancellationToken);
+                                });
                                
                             }, default, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
