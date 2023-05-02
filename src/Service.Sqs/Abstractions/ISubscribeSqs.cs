@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Service.Sqs.Abstractions;
 
-public interface ISubscribeSqs<T>
+public interface ISubscribeSqs<in T>
 {
     Task HandleAsync(T dto);
 

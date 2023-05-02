@@ -13,3 +13,14 @@ public class NewRecordSqsHandler : ISubscribeSqs<NewRecord>
         return Task.CompletedTask;
     }
 }
+
+public class AbstractNewRecord2Handler : ISubscribeSqs<AbstractNewRecord2>
+{
+    public int VisibleTimeOutSec { get; } = 10;
+
+    public Task HandleAsync(AbstractNewRecord2 dto)
+    {
+        Console.WriteLine(dto);
+        return Task.CompletedTask;
+    }
+}

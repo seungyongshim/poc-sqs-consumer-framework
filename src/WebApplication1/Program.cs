@@ -11,6 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<ISubscribeSqs<NewRecord>, NewRecordSqsHandler>();
+builder.Services.AddTransient<ISubscribeSqs<NewRecord2>, AbstractNewRecord2Handler>();
+
 builder.Host.UseEchoService();
 builder.Host.UseEffectSqs(AppNameType.App1, (x, sp) => x with
 {

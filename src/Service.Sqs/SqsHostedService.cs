@@ -69,12 +69,12 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                                 await (visibleTime?.GetValue(c) switch
                                 {
                                     30 => Task.CompletedTask,
-                                    int v => Task.Run(async () => await sqs.ChangeMessageVisibilityAsync(new ChangeMessageVisibilityRequest
+                                    int v => sqs.ChangeMessageVisibilityAsync(new ChangeMessageVisibilityRequest
                                     {
                                         QueueUrl = config.Url,
                                         ReceiptHandle = a.x.ReceiptHandle,
                                         VisibilityTimeout = v
-                                    })),
+                                    }),
                                     _ => Task.CompletedTask,
                                 });
 
@@ -87,6 +87,7 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                                 };
 
                                 await t1;
+
                                 _ = await sqs.DeleteMessageAsync(new DeleteMessageRequest
                                 {
                                     QueueUrl = config.Url,
