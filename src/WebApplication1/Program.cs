@@ -10,8 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<ISubscribeSqs<NewRecord>, NewRecordSqsHandler>();
-builder.Services.AddTransient<ISubscribeSqs<NewRecord2>, AbstractNewRecord2Handler>();
+builder.Services.AddTransient<ISubscribeSqs<NewRecord>, AbstractNewRecordHandler>();
+builder.Services.AddTransient<ISubscribeSqs<NewRecord2>, AbstractNewRecordHandler>();
 
 builder.Host.UseEchoService();
 builder.Host.UseEffectSqs(AppNameType.App1, (x, sp) => x with

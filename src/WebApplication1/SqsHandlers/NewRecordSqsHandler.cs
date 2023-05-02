@@ -3,22 +3,11 @@ using WebApplication1.Controllers;
 
 namespace WebApplication1.SqsHandlers;
 
-public class NewRecordSqsHandler : ISubscribeSqs<NewRecord>
+public class AbstractNewRecordHandler : ISubscribeSqs<AbstractNewRecord>
 {
     public int VisibleTimeOutSec { get; } = 10;
 
-    public Task HandleAsync(NewRecord dto)
-    {
-        Console.WriteLine(dto);
-        return Task.CompletedTask;
-    }
-}
-
-public class AbstractNewRecord2Handler : ISubscribeSqs<AbstractNewRecord2>
-{
-    public int VisibleTimeOutSec { get; } = 10;
-
-    public Task HandleAsync(AbstractNewRecord2 dto)
+    public Task HandleAsync(AbstractNewRecord dto)
     {
         Console.WriteLine(dto);
         return Task.CompletedTask;

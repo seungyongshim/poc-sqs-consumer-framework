@@ -32,7 +32,7 @@ public class SqsController : ControllerBase
     }
 }
 
-public record NewRecord(int Name, int Value, string guid);
-public record NewRecord2(int Name, int Value, string guid): AbstractNewRecord2;
+public record NewRecord(int Name, int Value, string guid): AbstractNewRecord;
+public record NewRecord2(int Name, int Value, string guid): AbstractNewRecord;
 
-public abstract record AbstractNewRecord2;
+public abstract record AbstractNewRecord;
