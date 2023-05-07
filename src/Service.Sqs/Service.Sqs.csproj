@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -14,7 +14,7 @@
     <ProjectReference Include="..\ArgebraicEffect\ArgebraicEffect.csproj" />
     <ProjectReference Include="..\Service.Abstractions\Service.Abstractions.csproj" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.6" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.7.100.121" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.102" />
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.0" />
   </ItemGroup>
 
