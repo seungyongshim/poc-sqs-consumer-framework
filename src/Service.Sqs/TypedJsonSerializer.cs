@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 
 namespace Service.Sqs;
@@ -25,7 +25,7 @@ public static class TypedJsonSerializer
     {
         var json = JsonSerializer.SerializeToNode(obj, JsonSerializerOptions)!;
 
-        json["_an"] = obj.GetType().Assembly.ToString();
+        json["_an"] = obj.GetType().Assembly.FullName!.Split(',')[0];
         json["_tn"] = obj.GetType().FullName;
 
         return json.ToJsonString();

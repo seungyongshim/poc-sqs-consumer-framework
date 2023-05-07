@@ -11,8 +11,16 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="*" PrivateAssets="All" />
+    <PackageReference Include="LanguageExt.Core" Version="4.*" />
     <None Include="$(SolutionDir)..\icon.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="LanguageExt.Prelude">
+      <Static>True</Static>
+    </Using>
+    <Using Include="LanguageExt"/>
+    <Using Include="LanguageExt.Common"/>
   </ItemGroup>
   <PropertyGroup>
     <PackageIcon>icon.png</PackageIcon>

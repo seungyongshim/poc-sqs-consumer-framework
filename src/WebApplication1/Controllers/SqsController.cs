@@ -23,7 +23,10 @@ public class SqsController : ControllerBase
                 {
                     0 => AppNameType.App1,
                     1 => AppNameType.App2
-                }, new NewRecord2(x, y, guid));
+                }, new NewRecord2(y, guid)
+                {
+                    Name = x.ToString(),
+                });
 
         foreach (var item in q)
         {
@@ -32,7 +35,10 @@ public class SqsController : ControllerBase
     }
 }
 
-public record NewRecord(int Name, int Value, string guid): AbstractNewRecord;
-public record NewRecord2(int Name, int Value, string guid): AbstractNewRecord;
+public record NewRecord(int Value, string Guid): AbstractNewRecord;
+public record NewRecord2(int Value, string Guid): AbstractNewRecord;
 
-public abstract record AbstractNewRecord;
+public abstract record AbstractNewRecord
+{
+    public string Name { get; init; } = string.Empty;
+}

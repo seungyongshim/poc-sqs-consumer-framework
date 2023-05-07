@@ -10,11 +10,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{4004AF67-61FA-4839-98E6-077FC41D177A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Sqs", "Service.Sqs\Service.Sqs.csproj", "{4C815193-6FE7-4455-8BB8-11558070BC70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Sqs", "Service.Sqs\Service.Sqs.csproj", "{4C815193-6FE7-4455-8BB8-11558070BC70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Abstractions", "Service.Abstractions\Service.Abstractions.csproj", "{876EEFD1-B9AA-40F2-97EC-78CD2DBC82A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Abstractions", "Service.Abstractions\Service.Abstractions.csproj", "{876EEFD1-B9AA-40F2-97EC-78CD2DBC82A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Echo", "Service.Echo\Service.Echo.csproj", "{AEFA5107-9AB1-4F7B-B18E-09915F192704}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Echo", "Service.Echo\Service.Echo.csproj", "{AEFA5107-9AB1-4F7B-B18E-09915F192704}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Sqs.Tests", "Service.Sqs.Tests\Service.Sqs.Tests.csproj", "{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebApplication2", "WebApplication2\WebApplication2.fsproj", "{D677E3C8-95DC-4F35-8C49-1431D961AFB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgebraicEffect.Abstraction", "ArgebraicEffect.Abstraction\ArgebraicEffect.Abstraction.csproj", "{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgebraicEffect", "ArgebraicEffect\ArgebraicEffect.csproj", "{9B1DFA93-6A54-4F0E-8CB8-F77055D05BD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgebraicEffect.Tests", "ArgebraicEffect.Tests\ArgebraicEffect.Tests.csproj", "{AF699521-0AD9-438A-B284-564BA9515BB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +48,26 @@ Global
 		{AEFA5107-9AB1-4F7B-B18E-09915F192704}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEFA5107-9AB1-4F7B-B18E-09915F192704}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEFA5107-9AB1-4F7B-B18E-09915F192704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B1DFA93-6A54-4F0E-8CB8-F77055D05BD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B1DFA93-6A54-4F0E-8CB8-F77055D05BD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B1DFA93-6A54-4F0E-8CB8-F77055D05BD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B1DFA93-6A54-4F0E-8CB8-F77055D05BD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF699521-0AD9-438A-B284-564BA9515BB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF699521-0AD9-438A-B284-564BA9515BB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF699521-0AD9-438A-B284-564BA9515BB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF699521-0AD9-438A-B284-564BA9515BB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
