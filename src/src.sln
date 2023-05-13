@@ -18,13 +18,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Echo", "Service.Ech
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Sqs.Tests", "Service.Sqs.Tests\Service.Sqs.Tests.csproj", "{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebApplication2", "WebApplication2\WebApplication2.fsproj", "{D677E3C8-95DC-4F35-8C49-1431D961AFB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgebraicEffect.Abstraction", "ArgebraicEffect.Abstraction\ArgebraicEffect.Abstraction.csproj", "{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgebraicEffect.Abstraction", "ArgebraicEffect.Abstraction\ArgebraicEffect.Abstraction.csproj", "{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgebraicEffect", "ArgebraicEffect\ArgebraicEffect.csproj", "{9B1DFA93-6A54-4F0E-8CB8-F77055D05BD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgebraicEffect", "ArgebraicEffect\ArgebraicEffect.csproj", "{9B1DFA93-6A54-4F0E-8CB8-F77055D05BD9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgebraicEffect.Tests", "ArgebraicEffect.Tests\ArgebraicEffect.Tests.csproj", "{AF699521-0AD9-438A-B284-564BA9515BB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgebraicEffect.Tests", "ArgebraicEffect.Tests\ArgebraicEffect.Tests.csproj", "{AF699521-0AD9-438A-B284-564BA9515BB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,10 +50,6 @@ Global
 		{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5229B4AB-4144-4BE7-8F50-A04B96E73ABD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D677E3C8-95DC-4F35-8C49-1431D961AFB9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08DE1E46-C4C6-48D1-9CA2-BDD1991E14FF}.Release|Any CPU.ActiveCfg = Release|Any CPU

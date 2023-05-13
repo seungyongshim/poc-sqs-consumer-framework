@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SQS;
+using Amazon.SQS.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
 using Service.Abstractions;
 using Service.Sqs.Abstractions;
 using Service.Sqs.Config;
@@ -60,12 +62,35 @@ public static partial class UseSqsExtension
         _ = host.ConfigureServices((ctx, services) =>
         {
             _ = services.AddSingleton<ISqsService, SqsService>();
-            _ = services.AddHttpClient("SQS");
-            _ = services.AddSingleton<SqsHttpClientFactory>();
-            _ = services.AddSingleton<IAmazonSQS, AmazonSQSClient>(sp => new AmazonSQSClient(new AmazonSQSConfig
+            _ = services.AddHttpClient("SqsProducer").ConfigureHttpMessageHandlerBuilder(config =>
+            {
+                config.PrimaryHandler = new HttpClientHandler
+                {
+                    MaxConnectionsPerServer = 2,
+                };
+            });
+
+            _ = services.AddSingleton<IAmazonSQSProducer, AmazonSQSProducer>(sp => new(config: new()
             {
                 RegionEndpoint = sp.GetRequiredService<AWSOptions>().Region,
-                HttpClientFactory = sp.GetRequiredService<SqsHttpClientFactory>(),
+                HttpClientFactory = new SqsHttpClientFactory(sp.GetRequiredService<IHttpClientFactory>(), "SqsProducer"),
+            }));
+
+            _ = services.AddTransient<PolicyHttpMessageHandler>();
+
+            _ = services.AddHttpClient("SqsConsumer")
+                        //.AddHttpMessageHandler<PolicyHttpMessageHandler>()
+                        .ConfigurePrimaryHttpMessageHandler(sp => new HttpClientHandler
+                        {
+                            MaxConnectionsPerServer = 2,
+                        });
+                        
+                        
+
+            _ = services.AddSingleton<IAmazonSQSConsumer, AmazonSQSConsumer>(sp => new(config: new()
+            {
+                RegionEndpoint = sp.GetRequiredService<AWSOptions>().Region,
+                HttpClientFactory = new SqsHttpClientFactory(sp.GetRequiredService<IHttpClientFactory>(), "SqsConsumer"),
             }));
 
             _ = services.AddTransient(typeof(ISubscribeSqs<>), typeof(SubscribeSqs<>));
@@ -74,4 +99,29 @@ public static partial class UseSqsExtension
 
         return host;
     }
+}
+
+public interface IAmazonSQSConsumer
+{
+    Task<DeleteMessageResponse> DeleteMessageAsync(DeleteMessageRequest request, CancellationToken cancellationToken = default);
+    Task<ReceiveMessageResponse> ReceiveMessageAsync(ReceiveMessageRequest request, CancellationToken cancellationToken = default);
+}
+
+public class AmazonSQSConsumer : AmazonSQSClient, IAmazonSQSConsumer
+{
+    public AmazonSQSConsumer(AmazonSQSConfig config) : base(config)
+    {
+    }
+}
+
+public interface IAmazonSQSProducer
+{
+    Task<SendMessageResponse> SendMessageAsync(SendMessageRequest request, CancellationToken cancellationToken = default);
+}
+
+public class AmazonSQSProducer : AmazonSQSClient, IAmazonSQSProducer
+{
+   public AmazonSQSProducer(AmazonSQSConfig config) : base(config)
+   {
+   }
 }

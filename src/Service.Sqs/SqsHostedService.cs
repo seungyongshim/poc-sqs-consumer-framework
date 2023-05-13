@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Service.Sqs.Abstractions;
 using Service.Sqs.Config;
+using Service.Sqs.Extensions;
 using Service.Sqs.Internal;
 
 namespace Service.Sqs;
@@ -26,7 +27,7 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var sqs = ServiceProvider.GetRequiredService<IAmazonSQS>();
+        var sqs = ServiceProvider.GetRequiredService<IAmazonSQSConsumer>();
         var single = new SingleThreadTaskScheduler();
 
         var tasks =
@@ -64,20 +65,6 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                                 var type = typeof(ISubscribeSqs<>).MakeGenericType(msg.GetType());
                                 var c = scope.ServiceProvider.GetRequiredService(type);
 
-                                var visibleTime = type.GetProperty(nameof(ISubscribeSqs<T>.VisibleTimeOutSec));
-
-                                await (visibleTime?.GetValue(c) switch
-                                {
-                                    30 => Task.CompletedTask,
-                                    int v => sqs.ChangeMessageVisibilityAsync(new ChangeMessageVisibilityRequest
-                                    {
-                                        QueueUrl = config.Url,
-                                        ReceiptHandle = a.x.ReceiptHandle,
-                                        VisibilityTimeout = v
-                                    }),
-                                    _ => Task.CompletedTask,
-                                });
-
                                 var m = type.GetMethod("HandleAsync");
 
                                 var t1 = m?.Invoke(c, new object[] { msg }) switch
@@ -107,7 +94,7 @@ public class SqsHostedService<T> : IHostedService where T : struct, Enum
                         Logger.LogError(ex, "");
                     }
                 }
-            }, default, TaskCreationOptions.LongRunning, single).Unwrap();
+            }, default, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
         _ = Task.WhenAll(tasks);
 

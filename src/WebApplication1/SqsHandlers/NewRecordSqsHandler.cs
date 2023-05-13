@@ -9,7 +9,8 @@ public class AbstractNewRecordHandler : ISubscribeSqs<AbstractNewRecord>
 
     public Task HandleAsync(AbstractNewRecord dto)
     {
-        Console.WriteLine(dto);
+     //   throw new NotImplementedException();
+       // Console.WriteLine(dto);
         return Task.CompletedTask;
     }
 }

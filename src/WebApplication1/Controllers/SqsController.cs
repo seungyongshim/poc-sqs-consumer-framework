@@ -17,7 +17,7 @@ public class SqsController : ControllerBase
     {
         var guid = Guid.NewGuid().ToString();
 
-        var q = from x in Enumerable.Range(0, 100)
+        var q = from x in Enumerable.Range(0, 10000)
                 from y in Enumerable.Range(0, 2)
                 select SqsService.SendMessageAsync(y switch
                 {
@@ -28,10 +28,9 @@ public class SqsController : ControllerBase
                     Name = x.ToString(),
                 });
 
-        foreach (var item in q)
-        {
-            await item;
-        }
+        var ret = q.ToArray();
+
+        await Task.WhenAll(ret);
     }
 }
 

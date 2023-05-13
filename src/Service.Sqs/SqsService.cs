@@ -8,18 +8,19 @@ using Amazon.SQS.Model;
 using Microsoft.Extensions.Options;
 using CommunityToolkit.HighPerformance;
 using Service.Sqs.Abstractions;
+using Service.Sqs.Extensions;
 
 namespace Service.Sqs;
 
 internal class SqsService : ISqsService
 {
-    public SqsService(IAmazonSQS amazonSQS, SqsOptions option)
+    public SqsService(IAmazonSQSProducer amazonSQS, SqsOptions option)
     {
         AmazonSQS = amazonSQS;
         Option = option;
     }
 
-    public IAmazonSQS AmazonSQS { get; }
+    public IAmazonSQSProducer AmazonSQS { get; }
     public SqsOptions Option { get; }
 
     public async Task SendMessageAsync<T>(T AppName, object message) where T: struct, Enum
@@ -28,10 +29,10 @@ internal class SqsService : ISqsService
         var hash = Math.Abs(json.GetDjb2HashCode());
         var urls = Option.Value[Enum.GetName(AppName)!].SqsConfigs.Select(x => x.Url).ToArray();
 
-        while (true)
+        //while (true)
         {
-            try
-            {
+            //try
+            //{
                 _ = await AmazonSQS.SendMessageAsync(new SendMessageRequest
                 {
                     QueueUrl = urls[hash % urls.Length],
@@ -40,11 +41,11 @@ internal class SqsService : ISqsService
                 });
 
                 return;
-            }
-            catch (AmazonSQSException ex) when (ex.Message == "Request is throttled.")
-            {
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
-            }
+            //}
+            //catch (AmazonSQSException ex) when (ex.Message == "Request is throttled.")
+            //{
+            //    await Task.Delay(TimeSpan.FromMilliseconds(10));
+            //}
         }
     }
 }
